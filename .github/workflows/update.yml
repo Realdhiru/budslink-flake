@@ -1,0 +1,63 @@
+name: Check and Update Upstream BudsLink
+
+on:
+  schedule:
+    # Run every Monday at 04:00 UTC
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Check for upstream updates
+        id: check
+        run: |
+          LATEST_REV=$(curl -sL https://api.github.com/repos/maniacx/BudsLink/commits/main | jq -r .sha)
+          CURRENT_REV=$(grep -oP 'rev = "\K[^"]+' pkgs/budslink.nix)
+
+          echo "Current: $CURRENT_REV"
+          echo "Latest:  $LATEST_REV"
+
+          if [ "$LATEST_REV" != "$CURRENT_REV" ] && [ -n "$LATEST_REV" ] && [ "$LATEST_REV" != "null" ]; then
+            echo "update_available=true" >> $GITHUB_OUTPUT
+            echo "latest_rev=$LATEST_REV" >> $GITHUB_OUTPUT
+          else
+            echo "update_available=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update hash and revision
+        if: steps.check.outputs.update_available == 'true'
+        run: |
+          REV="${{ steps.check.outputs.latest_rev }}"
+          sed -i "s/rev = \".*\";/rev = \"$REV\";/" pkgs/budslink.nix
+
+          # Calculate new hash using nix-prefetch-git
+          TEMP_HASH=$(nix-shell -p nix-prefetch-git --run "nix-prefetch-git --fetch-submodules https://github.com/maniacx/BudsLink.git --rev $REV" | jq -r .hash)
+          sed -i "s|hash = \".*\";|hash = \"$TEMP_HASH\";|" pkgs/budslink.nix
+
+          # Build check
+          nix build .#budslink
+
+      - name: Commit and push changes
+        if: steps.check.outputs.update_available == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pkgs/budslink.nix
+          git commit -m "chore(deps): update upstream BudsLink to ${{ steps.check.outputs.latest_rev }}"
+          git push
