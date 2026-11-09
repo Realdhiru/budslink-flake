@@ -1,0 +1,247 @@
+--- a/src/io.github.maniacx.BudsLink.src.gresource.xml
++++ b/src/io.github.maniacx.BudsLink.src.gresource.xml
+@@ -241,6 +241,7 @@
+         <file>lib/devices/opoBuds/deviceConfigs/RealmeBudsWireless5ANC.js</file>
+         <file>lib/devices/opoBuds/deviceConfigs/RealmeBudsAir7Pro.js</file>
+         <file>lib/devices/opoBuds/deviceConfigs/OnePlusBuds4.js</file>
++        <file>lib/devices/opoBuds/deviceConfigs/OnePlusNordBuds3.js</file>
+         <file>lib/devices/opoBuds/deviceConfigs/RealmeBudsAir8.js</file>
+         <file>lib/devices/opoBuds/deviceConfigs/RealmeBudsWireless3.js</file>
+         <file>preferences/devices/opoBuds/configureWindow.js</file>
+--- a/src/lib/devices/logger.js
++++ b/src/lib/devices/logger.js
+@@ -58,19 +58,18 @@
+ export function createLogger(tag) {
+     return {
+         info: (...args) => {
+-            if (!LOG_ENABLED)
+-                return;
++            console.log(`[INF] [${tag}] ${args.join(' ')}`);
+             WriteLogLine('INF', `[${tag}] ${args.join(' ')}`);
+         },
+ 
+         error: (err, msg = '') => {
+             const text = `${msg} ${err instanceof Error ? err.stack : String(err)}`.trim();
++            console.error(`[ERR] [${tag}] ${text}`);
+             WriteLogLine('ERR', `[${tag}] ${text}`);
+         },
+ 
+         bytes: (...args) => {
+-            if (!LOG_ENABLED)
+-                return;
++            console.log(`[BYT] [${tag}] ${args.join(' ')}`);
+             WriteLogLine('BYT', `[${tag}] ${args.join(' ')}`);
+         },
+     };
+--- a/src/lib/devices/opoBuds/deviceConfigs/OnePlusNordBuds3.js
++++ b/src/lib/devices/opoBuds/deviceConfigs/OnePlusNordBuds3.js
+@@ -0,0 +1,168 @@
++'use strict';
++
++export default {
++    modelId: '065014',
++    name: 'OnePlus Nord Buds 3',
++
++    batteryLR: true,
++    batteryCase: true,
++
++    eqPreset: {
++        originalSound: 0x00,
++        serenade: 0x01,
++        bass: 0x02,
++    },
++
++    customEqSupport: true,
++    eqBands: {
++        frequencies: [62, 250, 1000, 4000, 8000, 16000],
++        range: 6,
++    },
++
++    noiseControl: {
++        modes: {
++            off: {
++                set: [0x01],
++                event: [0x01],
++            },
++            transparency: {
++                set: [0x02],
++                event: [0x02],
++            },
++            noiseCancellation: {
++                levels: {
++                    auto: {
++                        set: [0x20],
++                        event: [0x20],
++                    },
++                    low: {
++                        set: [0x04],
++                        event: [0x04],
++                    },
++                    mid: {
++                        set: [0x10],
++                        event: [0x10],
++                    },
++                    high: {
++                        set: [0x08],
++                        event: [0x08],
++                    },
++                },
++            },
++        },
++    },
++
++    inEarDetection: true,
++    lowLatencyMode: true,
++    dualConnection: true,
++    spatialAudio: true,
++    highResAudio: true,
++    dynamicBass: true,
++    dynamicBassOpo: true,
++    fitTest: true,
++    ring: true,
++
++    gestureOptions: {
++        slots: [
++            {group: 'left',  device: 0x01, buttonId: 0x01, type: 'single'},
++            {group: 'left',  device: 0x01, buttonId: 0x01, type: 'double'},
++            {group: 'left',  device: 0x01, buttonId: 0x01, type: 'triple'},
++            {group: 'left',  device: 0x01, buttonId: 0x01, type: 'swipe'},
++            {group: 'right',  device: 0x02, buttonId: 0x01, type: 'single'},
++            {group: 'right', device: 0x02, buttonId: 0x01, type: 'double'},
++            {group: 'right', device: 0x02, buttonId: 0x01, type: 'triple'},
++            {group: 'right',  device: 0x02, buttonId: 0x01, type: 'swipe'},
++            {group: 'left-call',  device: 0x01, buttonId: 0x06, type: 'double-call'},
++            {group: 'left-call',  device: 0x01, buttonId: 0x06, type: 'long-action-hold-call'},
++            {group: 'right-call',  device: 0x02, buttonId: 0x06, type: 'double-call'},
++            {group: 'right-call',  device: 0x02, buttonId: 0x06, type: 'long-action-hold-call'},
++        ],
++        mapping: {
++            gestureTypes: {
++                'single': 0x01,
++                'double': 0x02,
++                'triple': 0x03,
++                'swipe': 0x05,
++                'double-call': 0x02,
++                'long-action-hold-call': 0x06,
++            },
++            actions: {
++                'none': [0x00],
++                'play-pause': [0x01],
++                'voice-assistant': [0x04],
++                'skip-back': [0x05],
++                'skip-forward': [0x06],
++                'device-switch': [0x0A],
++                'game-mode': [0x11],
++                'change-volume': [0x07],
++                'switch-track': [0x0A],
++                'answer-end-call': [0x1D],
++                'decline-call': [0x1C],
++            },
++        },
++        gestures: {
++            'single': {
++                type: 'tap',
++                actions: [
++                    'play-pause',
++                    'none',
++                ],
++            },
++            'double': {
++                type: 'tap',
++                actions: [
++                    'play-pause',
++                    'skip-forward',
++                    'skip-back',
++                    'voice-assistant',
++                    'game-mode',
++                    'none',
++                ],
++            },
++            'triple': {
++                type: 'tap',
++                actions: [
++                    'skip-forward',
++                    'skip-back',
++                    'voice-assistant',
++                    'game-mode',
++                    'none',
++                ],
++            },
++            'swipe': {
++                type: 'swipe',
++                actions: [
++                    'none',
++                    'change-volume',
++                    'switch-track',
++                ],
++            },
++            'double-call': {
++                type: 'tap',
++                actions: [
++                    'answer-end-call',
++                    'none',
++                ],
++            },
++            'long-action-hold-call': {
++                type: 'tap',
++                actions: [
++                    'decline-call',
++                    'none',
++                ],
++            },
++        },
++        noiseControlModes: {
++            'off': 0x01,
++            'transparency': 0x04,
++            'noise-cancellation': 0x02,
++            'adaptive': 0x0800,
++        },
++        ancCycleType: 1,
++        minimumNoiseControlModes: 1,
++    },
++
++    albumArtIcon: 'earbuds-stem',
++    budsIcon: 'earbuds-stem',
++    case: 'case-oval',
++};
+--- a/src/lib/devices/opoBuds/opoBudsConfig.js
++++ b/src/lib/devices/opoBuds/opoBudsConfig.js
+@@ -5,6 +5,7 @@
+ import RealmeBudsWireless3 from './deviceConfigs/RealmeBudsWireless3.js';
+ import RealmeBudsAir7Pro from './deviceConfigs/RealmeBudsAir7Pro.js';
+ import RealmeBudsAir8 from './deviceConfigs/RealmeBudsAir8.js';
++import OnePlusNordBuds3 from './deviceConfigs/OnePlusNordBuds3.js';
+ import OnePlusBuds4 from './deviceConfigs/OnePlusBuds4.js';
+ 
+ export const OpoBudsModelList = [
+@@ -14,6 +15,7 @@
+     RealmeBudsAir7Pro,
+     RealmeBudsAir8,
+     OnePlusBuds4,
++    OnePlusNordBuds3,
+ ];
+ 
+ export const Cmd = {
+--- a/src/lib/devices/opoBuds/opoBudsSocket.js
++++ b/src/lib/devices/opoBuds/opoBudsSocket.js
+@@ -322,10 +322,18 @@
+                 if (!this._modelInitialized && payload.length >= 4 && payload[0] === 0x00) {
+                     const id = payload[1] | payload[2] << 8 | payload[3] << 16;
+                     const pidHex = id.toString(16).padStart(6, '0').toUpperCase();
+-                    this._log.info(`Received Product ID: 0x${pidHex}`);
++                    console.log(`[BudsLink OpoBuds] Received Product ID: 0x${pidHex}`);
+                     const model = OpoBudsModelList.find(m => m.modelId.toUpperCase() === pidHex);
+-                    if (model)
++                    if (model) {
+                         this._onModelInitialized(model);
++                    } else {
++                        console.log(`[BudsLink OpoBuds] Unknown Product ID 0x${pidHex}. Using generic fallback to ensure controls remain accessible.`);
++                        const genericModel = Object.assign({}, OpoBudsModelList[0], {
++                            modelId: pidHex,
++                            name: 'OnePlus / Oppo Earbuds (Universal Fallback)',
++                        });
++                        this._onModelInitialized(genericModel);
++                    }
+                 }
+                 break;
+ 

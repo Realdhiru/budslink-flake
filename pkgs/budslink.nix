@@ -27,6 +27,10 @@ stdenv.mkDerivation rec {
     hash = "sha256-laDpQaVIdhLA9iIXt56G8h+MD7XFKdYU+7Yui/2CHM4=";
   };
 
+  patches = [
+    ../patches/0001-support-oneplus-nord-buds-3-and-universal-fallback.patch
+  ];
+
   nativeBuildInputs = [
     meson
     ninja
