@@ -35,7 +35,7 @@
      };
 --- a/src/lib/devices/opoBuds/deviceConfigs/OnePlusNordBuds3.js
 +++ b/src/lib/devices/opoBuds/deviceConfigs/OnePlusNordBuds3.js
-@@ -0,0 +1,168 @@
+@@ -0,0 +1,152 @@
 +'use strict';
 +
 +export default {
@@ -68,24 +68,8 @@
 +                event: [0x02],
 +            },
 +            noiseCancellation: {
-+                levels: {
-+                    auto: {
-+                        set: [0x20],
-+                        event: [0x20],
-+                    },
-+                    low: {
-+                        set: [0x04],
-+                        event: [0x04],
-+                    },
-+                    mid: {
-+                        set: [0x10],
-+                        event: [0x10],
-+                    },
-+                    high: {
-+                        set: [0x08],
-+                        event: [0x08],
-+                    },
-+                },
++                set: [0x04],
++                event: [0x04],
 +            },
 +        },
 +    },
@@ -245,3 +229,14 @@
                  }
                  break;
  
+@@ -357,6 +365,10 @@
+                 this._parseEqNotify(payload);
+                 break;
+ 
++            case Cmd.SET_ANC_RSP:
++                this._log.info('ANC command acknowledged by device');
++                break;
++
+             case Cmd.GET_BASS_ENGINE_RSP:
+                 this._parseDynamicBassOpo(payload);
+                 break;
