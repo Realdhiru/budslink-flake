@@ -59,10 +59,6 @@
 +
 +    noiseControl: {
 +        modes: {
-+            noiseCancellation: {
-+                set: [0x01],
-+                event: [0x01],
-+            },
 +            off: {
 +                set: [0x02],
 +                event: [0x02],
@@ -70,6 +66,10 @@
 +            transparency: {
 +                set: [0x04],
 +                event: [0x04],
++            },
++            noiseCancellation: {
++                set: [0x01],
++                event: [0x01],
 +            },
 +        },
 +    },
